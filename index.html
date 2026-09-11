@@ -15,18 +15,15 @@
   <header class="app-bar">
     <div class="brand-section">
       <button class="menu-toggle-btn" id="sidebarCollapseBtn" onclick="toggleSidebarMenu()" title="展開/收納側邊欄">☰</button>
-      <div class="world-badge" id="currentWorldBadge" title="當前選定之世界觀">
+      <!-- 按鈕樣式的世界觀切換器 -->
+      <button class="world-btn" id="currentWorldBadge" onclick="toggleSidebarMenu()" title="當前選定之世界觀">
         <span id="currentWorldIcon">🌐</span> <span id="currentWorldName">主世界觀</span>
-      </div>
+      </button>
     </div>
  
     <div class="tab-switch">
-      <button class="tab-btn active" id="tabEditorBtn" onclick="switchView('editor')">
-        📝 文檔
-      </button>
-      <button class="tab-btn" id="tabCanvasBtn" onclick="switchView('canvas')">
-        🕸️ 白板
-      </button>
+      <button class="tab-btn active" id="tabEditorBtn" onclick="switchView('editor')">📝 文檔</button>
+      <button class="tab-btn" id="tabCanvasBtn" onclick="switchView('canvas')">🕸️ 白板</button>
     </div>
  
     <div class="top-actions">
@@ -40,15 +37,20 @@
  
   <!-- Workspace Body -->
   <div class="app-body">
-    <!-- Left Sidebar: Multi-level Folder & Worldview Tree -->
+    <!-- Leftmost Worldview Icon Rail (最左側世界觀切換欄) -->
+    <aside class="world-rail" id="appWorldRail">
+      <button class="world-rail-btn add-btn" title="新增世界觀" onclick="promptCreateWorldview()">＋</button>
+      <div class="world-rail-list" id="worldRailContainer"></div>
+    </aside>
+
+    <!-- Sub Sidebar: Directory & Docs of Current World (中欄：目錄與檔案) -->
     <aside class="sidebar" id="appSidebar">
       <div class="sidebar-header">
         <div style="display:flex; align-items:center; gap:6px;">
           <button class="icon-btn" id="trashToggleBtn" title="開啟/關閉批量刪除模式" onclick="toggleBatchDeleteMode()">🗑️</button>
-          <span class="sidebar-title">世界觀與目錄</span>
+          <span class="sidebar-title" id="currentWorldRailTitle">目錄</span>
         </div>
         <div class="icon-btn-group">
-          <button class="icon-btn" title="新增頂層世界觀" onclick="promptCreateWorldview()">🌐＋</button>
           <button class="icon-btn" title="新增資料夾" onclick="promptCreateFolder(null)">📁＋</button>
           <button class="icon-btn" title="新增文檔" onclick="createNewDoc(null)">📄＋</button>
           <button class="icon-btn" id="closeSidebarBtn" style="display:none;" onclick="closeSidebarMobile()">✕</button>
@@ -68,9 +70,7 @@
       <div class="tree-scroll-area" id="worldTreeContainer"></div>
  
       <div style="padding:10px 12px; border-top:1px solid var(--border); display:flex; gap:6px; width:100%;">
-        <button class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="openPaletteModal()">
-          🎨 標籤顏色命名
-        </button>
+        <button class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="openPaletteModal()">🎨 標籤顏色命名</button>
         <button class="btn btn-secondary" style="padding:8px 10px;" title="備份完整資料庫" onclick="exportFullDatabaseJSON()">💾 備份</button>
       </div>
     </aside>
@@ -79,7 +79,6 @@
     <main class="main-view">
       <!-- 1. Document Editor -->
       <section id="editorView">
-        <!-- Breadcrumb & Hierarchy Bar with Folder Hover -->
         <div class="breadcrumb-bar" id="docBreadcrumbBar"></div>
  
         <div class="editor-top-bar">
@@ -99,32 +98,26 @@
         </div>
  
         <div class="editor-scroll-body">
-          <!-- Title & Icon -->
           <div class="doc-title-row">
             <button class="doc-icon-picker-btn" id="docIconBtn" title="點擊自訂文檔 Icon" onclick="openIconPicker('doc', activeDocId)">📄</button>
             <input type="text" id="docTitleInput" class="title-input" placeholder="輸入文檔標題 (未填則自動取第一行)..." oninput="onTitleChange()">
           </div>
  
-          <!-- Chapter Fast Navigation Jump TOC -->
           <div class="toc-card" id="tocCard" style="display:none;">
             <div class="toc-title">📑 章節快速跳轉 (內文輸入「# 章節名」或「第X章」可自動識別)</div>
             <div class="toc-links" id="tocLinksContainer"></div>
           </div>
  
-          <!-- Hashtags Live Bar -->
           <div class="hashtag-toolbar" id="liveTagToolbar"></div>
- 
-          <!-- Document Attached Images -->
           <div class="doc-images-strip" id="docImagesContainer"></div>
  
-          <!-- Content Body -->
           <textarea id="docContentInput" class="content-textarea" placeholder="在此書寫世界觀細節、章節大綱或角色背景...
 💡 章節標註：輸入「# 第一章 啟程」或「第1章」系統會自動在頂部生成快速跳轉按鈕。
 💡 標籤標註：輸入「#帝國軍方 #反抗勢力」系統會自動抽取；點擊上方 Hashtag 名稱可直接定位到內文段落！" oninput="onContentChange()"></textarea>
         </div>
       </section>
  
-      <!-- 2. Whiteboard Canvas (Per-Worldview) -->
+      <!-- 2. Whiteboard Canvas -->
       <section id="canvasView">
         <div class="canvas-bar">
           <div style="display:flex; align-items:center; gap:8px;">
@@ -140,25 +133,22 @@
     </main>
   </div>
  
-  <!-- Modal: Batch Export Options -->
+  <!-- Modals -->
   <div class="modal-overlay" id="batchExportModal">
     <div class="modal-card">
       <div class="modal-title">📤 批量匯出文檔 / 資料夾</div>
-      <p style="font-size:12px; color:var(--text-secondary);">勾選你要匯出的資料夾或個別文檔，系統將自動打包產生乾淨的 HTML / JSON / TXT 導出檔：</p>
-      
+      <p style="font-size:12px; color:var(--text-secondary);">勾選你要匯出的資料夾或個別文檔：</p>
       <div style="display:flex; gap:8px; margin-bottom:6px;">
         <button class="btn btn-secondary" style="font-size:11px; padding:6px 10px; min-height:auto;" onclick="toggleExportAll(true)">全選</button>
         <button class="btn btn-secondary" style="font-size:11px; padding:6px 10px; min-height:auto;" onclick="toggleExportAll(false)">取消全選</button>
       </div>
- 
       <div style="border:1px solid var(--border); border-radius:var(--radius-md); padding:8px; max-height:260px; overflow-y:auto;" id="exportChecklistContainer"></div>
- 
       <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px; flex-wrap:wrap; gap:10px;">
         <label style="font-size:12px; color:var(--text-secondary);">
           匯出格式：
           <select id="exportFormatSelect" style="padding:6px 8px; border-radius:var(--radius-sm); border:1px solid var(--border); font-size:12px; background:var(--bg-sunken); color:var(--text-primary);">
-            <option value="html">獨立網頁 HTML 檔案 (排版最美、可直接點擊閱讀)</option>
-            <option value="json">結構化 JSON 檔案 (完整備份)</option>
+            <option value="html">獨立網頁 HTML 檔案</option>
+            <option value="json">結構化 JSON 檔案</option>
             <option value="txt">純文字 TXT 檔案</option>
           </select>
         </label>
@@ -170,7 +160,6 @@
     </div>
   </div>
  
-  <!-- Modal: Palette Customizer -->
   <div class="modal-overlay" id="paletteModal">
     <div class="modal-card">
       <div class="modal-title">🎨 標籤顏色功能自定義命名</div>
@@ -182,14 +171,13 @@
     </div>
   </div>
  
-  <!-- Modal: Icon Picker -->
   <div class="modal-overlay" id="iconPickerModal">
     <div class="modal-card" style="width:340px;">
       <div class="modal-title">✨ 選擇自訂 Icon</div>
       <div class="emoji-grid" id="emojiGrid"></div>
       <div style="margin-top:10px;">
         <label style="font-size:12px; color:var(--text-secondary);">或手動輸入任何文字/符號：</label>
-        <input type="text" id="customIconInput" class="form-input" maxlength="4" placeholder="例如：⚔️、🐉、A">
+        <input type="text" id="customIconInput" class="form-input" maxlength="4" placeholder="例如：⚔️、🐉">
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
         <button class="btn btn-primary" onclick="applyCustomIcon()">確定套用</button>
@@ -197,7 +185,6 @@
     </div>
   </div>
  
-  <!-- Modal: Move Folder -->
   <div class="modal-overlay" id="moveModal">
     <div class="modal-card">
       <div class="modal-title">🔀 移動資料夾或更改所屬世界觀</div>
@@ -210,9 +197,7 @@
     </div>
   </div>
  
-  <!-- Popover: Tag Color Picker -->
   <div class="color-picker-popup" id="colorPickerPopover"></div>
   <script src="app.js"></script>
 </body>
 </html>
- 
