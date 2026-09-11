@@ -11,15 +11,15 @@
 </head>
 <body>
 
-  <!-- 最左側世界觀切換欄 (貫穿頁面頂底) -->
+  <!-- 最左側欄位：＋ 按鈕與圓形世界觀圖示清單 (貫穿全頁高) -->
   <aside class="world-rail" id="appWorldRail">
     <button class="world-rail-btn add-btn" title="新增頂層世界觀" onclick="promptCreateWorldview()">＋</button>
     <div class="world-rail-list" id="worldRailContainer"></div>
   </aside>
 
-  <!-- 右側主要應用版面 (包含頂部橫 Bar、目錄欄與主工作區) -->
+  <!-- 右側主要區域 -->
   <div class="app-main-layout">
-    <!-- 頂部橫向導航列 -->
+    <!-- 頂部橫 Bar：從最左欄右側開始，包含 A、B、C、D、E -->
     <header class="top-nav-bar">
       <!-- 左側 A 與 B -->
       <div class="nav-group-left">
@@ -32,7 +32,7 @@
         </button>
       </div>
 
-      <!-- 中間 C: 切換白板與文檔按鈕 -->
+      <!-- 中間 C: 切換白板與文檔 -->
       <div class="nav-group-center">
         <div class="tab-switch-box" id="btnC_TabSwitch">
           <button class="tab-btn active" id="tabEditorBtn" onclick="switchView('editor')">📝 文檔</button>
@@ -53,9 +53,9 @@
       </div>
     </header>
 
-    <!-- 下半部工作空間 -->
+    <!-- 下半部雙欄空間 -->
     <div class="workspace-body">
-      <!-- 中間欄：目錄欄 (可由 A 收合) -->
+      <!-- 中間欄：目錄工具欄 + 搜尋欄 + 檔案清單 (由 A 漢堡收合) -->
       <aside class="sidebar-directory" id="appSidebar">
         <div class="directory-top-bar">
           <span class="directory-title">目錄工具欄</span>
@@ -96,7 +96,7 @@
       <main class="content-workspace">
         <!-- 1. 文檔編輯區 -->
         <section id="editorView" class="view-panel">
-          <!-- 上層資訊與動作區 -->
+          <!-- 上層資訊與動作區 (草圖配置：左側麵包屑、標題、字數/更新時間、Hashtags；右側三個按鈕) -->
           <div class="editor-meta-panel">
             <div class="meta-left-col">
               <!-- 麵包屑 -->
@@ -115,7 +115,7 @@
               <div class="hashtag-wrap" id="liveTagToolbar"></div>
             </div>
 
-            <!-- 右側三個按鈕 -->
+            <!-- 右側三個動作按鈕 -->
             <div class="meta-right-col">
               <label class="action-pill-btn" title="插入圖片">
                 🖼️ <span class="lbl">放圖片</span>
@@ -126,7 +126,7 @@
             </div>
           </div>
 
-          <!-- 下方內文大工作區 (100% 滿版) -->
+          <!-- 下方內文大工作區 (100% 寬度滿版，收起目錄時平滑佔滿全螢幕) -->
           <div class="editor-content-area">
             <div class="toc-card" id="tocCard" style="display:none;">
               <div class="toc-title">📑 章節快速跳轉</div>
