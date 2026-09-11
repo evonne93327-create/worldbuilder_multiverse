@@ -67,7 +67,7 @@ button:focus-visible, input:focus-visible, textarea:focus-visible {
 }
 
 /* ==========================================================
-   最左側欄位：世界觀切換欄
+   最左側欄位：＋ 與圓形世界觀圖示清單 (貫穿全頁高)
    ========================================================== */
 aside.world-rail {
   width: 62px;
@@ -145,6 +145,7 @@ aside.world-rail {
   overflow: hidden;
 }
 
+/* 頂部橫 Bar：從最左側欄右側開始，包含 A、B、C、D、E */
 header.top-nav-bar {
   height: calc(54px + var(--safe-t));
   min-height: calc(54px + var(--safe-t));
@@ -168,6 +169,7 @@ header.top-nav-bar {
   flex-shrink: 0;
 }
 
+/* A: 漢堡按鈕 */
 .nav-btn-icon {
   width: 36px;
   height: 36px;
@@ -184,6 +186,7 @@ header.top-nav-bar {
 }
 .nav-btn-icon:hover { background: var(--border); }
 
+/* B: 世界觀按鈕 */
 .nav-world-btn {
   display: inline-flex;
   align-items: center;
@@ -206,6 +209,7 @@ header.top-nav-bar {
   transform: translateY(-1px);
 }
 
+/* C: 切換白板與文檔 */
 .nav-group-center { flex-shrink: 0; }
 .tab-switch-box {
   display: flex;
@@ -232,6 +236,7 @@ header.top-nav-bar {
   box-shadow: var(--shadow-sm);
 }
 
+/* D 與 E: 匯出與新文檔 */
 .nav-group-right {
   display: flex;
   align-items: center;
@@ -274,7 +279,7 @@ header.top-nav-bar {
   overflow: hidden;
 }
 
-/* 中間目錄欄 */
+/* 中間目錄欄 (可由 A 收合) */
 aside.sidebar-directory {
   width: 280px;
   min-width: 280px;
@@ -336,7 +341,7 @@ aside.sidebar-directory.collapsed {
 }
 .batch-bar.active { display: flex; }
 
-/* Google 風格搜尋欄樣式 */
+/* Google 風格搜尋框 */
 .search-wrap {
   padding: 8px 12px;
   border-bottom: 1px solid var(--border);
@@ -359,7 +364,6 @@ aside.sidebar-directory.collapsed {
   box-shadow: 0 1px 4px rgba(172,59,42,0.12);
 }
 
-/* 固定不能動的放大鏡 */
 .search-lens-icon {
   font-size: 13px;
   user-select: none;
@@ -369,7 +373,6 @@ aside.sidebar-directory.collapsed {
   flex-shrink: 0;
 }
 
-/* 打字起點對齊提示文字 */
 .search-input-box {
   flex: 1;
   border: none;
@@ -382,7 +385,6 @@ aside.sidebar-directory.collapsed {
 }
 .search-input-box::placeholder { color: var(--text-muted); }
 
-/* 最右側 Google 風格清空叉叉 */
 .search-clear-btn {
   background: transparent;
   border: none;
@@ -392,7 +394,7 @@ aside.sidebar-directory.collapsed {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  display: none; /* 預設無文字時隱藏 */
+  display: none;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
@@ -477,7 +479,7 @@ main.content-workspace {
   flex-direction: column;
 }
 
-/* 上層資訊卡片 */
+/* 上層資訊卡片 (草圖配置：左側麵包屑、標題、字數、標籤；右側三個按鈕) */
 .editor-meta-panel {
   background: var(--bg-card);
   border-bottom: 1px solid var(--border);
@@ -586,7 +588,7 @@ main.content-workspace {
   font-weight: 600;
 }
 
-/* 右側三個白底按鈕 (墨與紙風格) */
+/* 右側三個動作按鈕 */
 .meta-right-col {
   display: flex;
   align-items: center;
@@ -620,7 +622,7 @@ main.content-workspace {
   background: var(--danger-light);
 }
 
-/* 下方編輯器內文區 */
+/* 下方編輯器內文區 (全面延伸 100%) */
 .editor-content-area {
   flex: 1;
   overflow-y: auto;
