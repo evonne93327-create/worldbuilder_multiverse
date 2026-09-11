@@ -1,5 +1,5 @@
 /* ==========================================================
-   1. 預設資料庫 (含保證載入機制，不怕暫存搞丟)
+   1. 預設資料庫 (含保證載入機制)
    ========================================================== */
 const DEFAULT_PALETTES = {
   "c_gray":   { name: "一般隨記", bg: "#EFE9DC", text: "#5A4F42" },
@@ -86,7 +86,6 @@ let moveFolderTargetId = null;
 let connectingSourceNodeId = null;
 let collapsedFolders = {};
 
-// 智能保護讀取：若暫存遺失或為空，自動保留預設值
 const saved = localStorage.getItem("novel_multi_world_data_v5");
 if (saved) {
   try {
@@ -126,7 +125,6 @@ function toggleSidebarMenu() {
       overlay.classList.add("active");
     }
   } else {
-    // 電腦端收納/展開目錄欄
     sidebar.classList.toggle("collapsed");
   }
 }
@@ -145,6 +143,28 @@ function updateWorldBadge() {
     document.getElementById("canvasWorldTitle").textContent = "🕸️ " + icon + " " + world.name + " · 專屬白板";
   }
   renderWorldRail();
+}
+
+/* ==========================================================
+   搜尋欄控制 (Google 叉叉清空與即時輸入)
+   ========================================================== */
+function handleSearchInput(inputEl) {
+  const clearBtn = document.getElementById("searchClearBtn");
+  if (inputEl.value.trim().length > 0) {
+    clearBtn.style.display = "flex";
+  } else {
+    clearBtn.style.display = "none";
+  }
+  renderSidebarTree();
+}
+
+function clearSearchInput() {
+  const inputEl = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("searchClearBtn");
+  inputEl.value = "";
+  clearBtn.style.display = "none";
+  renderSidebarTree();
+  inputEl.focus();
 }
 
 /* ==========================================================
@@ -175,7 +195,7 @@ function renderWorldRail() {
 }
 
 /* ==========================================================
-   3. 樹狀目錄渲染 (僅渲染當前選取世界觀)
+   3. 樹狀目錄渲染
    ========================================================== */
 function renderSidebarTree() {
   const container = document.getElementById("worldTreeContainer");
@@ -244,7 +264,6 @@ function renderFolderLevel(worldId, parentId, parentElement, search) {
 
     setupRenameTriggers(folderRow.querySelector('.node-name'), 'folder', folder.id, function() { return folder.name; });
 
-    // 拖曳放置
     folderRow.ondragover = function(e) { e.preventDefault(); folderRow.style.background = "#E0E7FF"; };
     folderRow.ondragleave = function() { folderRow.style.background = ""; };
     folderRow.ondrop = function(e) {
