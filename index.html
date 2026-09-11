@@ -7,32 +7,66 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <!-- 加入版本號 ?v=2.0 讓瀏覽器強制更新快取 -->
+  <link rel="stylesheet" href="style.css?v=2.0">
 </head>
 <body>
 
-  <!-- 最左側世界觀切換欄 (貫穿頁面頂底) -->
+  <!-- 最左側世界觀切換欄 (貫穿全頁高) -->
   <aside class="world-rail" id="appWorldRail">
     <button class="world-rail-btn add-btn" title="新增頂層世界觀" onclick="promptCreateWorldview()">＋</button>
     <div class="world-rail-list" id="worldRailContainer"></div>
   </aside>
 
-  <!-- 右側主要應用版面 (包含頂部橫 Bar、目錄欄與主工作區) -->
+  <!-- 中間欄位：目錄欄 (頂格向上對齊) -->
+  <aside class="sidebar-directory" id="appSidebar">
+    <!-- 頂格的目錄工具欄 -->
+    <div class="directory-top-bar">
+      <span class="directory-title">目錄工具欄</span>
+      <div class="dir-btn-group">
+        <button class="icon-sm-btn" id="trashToggleBtn" title="批量刪除模式" onclick="toggleBatchDeleteMode()">🗑️</button>
+        <button class="icon-sm-btn" title="新增資料夾" onclick="promptCreateFolder(null)">📁＋</button>
+        <button class="icon-sm-btn" title="新增文檔" onclick="createNewDoc(null)">📄＋</button>
+        <button class="icon-sm-btn mobile-close" id="closeSidebarBtn" onclick="closeSidebarMobile()">✕</button>
+      </div>
+    </div>
+
+    <!-- 批量刪除條 -->
+    <div class="batch-bar" id="batchActionBar">
+      <span>已進入批量刪除模式</span>
+      <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="executeBatchDelete()">刪除選取項</button>
+    </div>
+
+    <!-- 搜尋欄 -->
+    <div class="search-wrap">
+      <input type="text" id="searchInput" class="search-input-box" placeholder="🔍 搜尋欄..." oninput="renderSidebarTree()">
+    </div>
+
+    <!-- 樹狀清單 -->
+    <div class="directory-tree-area" id="worldTreeContainer"></div>
+
+    <!-- 底層功能 -->
+    <div class="directory-footer">
+      <button class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="openPaletteModal()">🎨 色盤</button>
+      <button class="btn btn-secondary" style="padding:6px 10px;" title="備份完整資料庫" onclick="exportFullDatabaseJSON()">💾 備份</button>
+    </div>
+  </aside>
+
+  <!-- 右側主工作區 (包含頂部 A B C D 橫 Bar 與主內容區) -->
   <div class="app-main-layout">
-    <!-- 頂部橫向導航列 (橫跨目錄欄與主編輯區) -->
+    <!-- 頂部橫 Bar：A B C D -->
     <header class="top-nav-bar">
-      <!-- 左側 A 與 B -->
       <div class="nav-group-left">
-        <!-- A: 漢堡按鈕 -->
+        <!-- A: 漢堡 -->
         <button class="nav-btn-icon" id="btnA_Hamburger" onclick="toggleSidebarMenu()" title="展開/收納目錄">☰</button>
-        <!-- B: 世界觀按鈕 -->
-        <button class="nav-world-btn" id="btnB_WorldBadge" onclick="openIconPicker('world', activeWorldId)" title="當前世界觀 (點擊更換 Icon)">
+        <!-- B: 世界觀 -->
+        <button class="nav-world-btn" id="btnB_WorldBadge" onclick="openIconPicker('world', activeWorldId)" title="當前世界觀">
           <span id="currentWorldIcon">🌐</span>
           <span id="currentWorldName">主世界觀</span>
         </button>
       </div>
 
-      <!-- 中間 C: 切換白板與文檔按鈕 -->
+      <!-- C: 切換白板與文檔 -->
       <div class="nav-group-center">
         <div class="tab-switch-box" id="btnC_TabSwitch">
           <button class="tab-btn active" id="tabEditorBtn" onclick="switchView('editor')">📝 文檔</button>
@@ -40,123 +74,78 @@
         </div>
       </div>
 
-      <!-- 右側 D 與 E -->
+      <!-- D: 匯出與新文檔 -->
       <div class="nav-group-right">
-        <!-- D: 匯出按鈕 -->
         <button class="nav-action-btn secondary" id="btnD_Export" onclick="openBatchExportModal()" title="批量匯出">
           <span>📤</span><span class="btn-text">匯出</span>
         </button>
-        <!-- E: 新文檔按鈕 -->
         <button class="nav-action-btn primary" id="btnE_NewDoc" onclick="createNewDoc(null)" title="新增文檔">
           <span>＋</span><span class="btn-text">新文檔</span>
         </button>
       </div>
     </header>
 
-    <!-- 下半部工作空間 -->
-    <div class="workspace-body">
-      <!-- 中間欄：目錄欄 (可由 A 收合) -->
-      <aside class="sidebar-directory" id="appSidebar">
-        <div class="directory-top-bar">
-          <span class="directory-title">目錄工具欄</span>
-          <div class="dir-btn-group">
-            <button class="icon-sm-btn" id="trashToggleBtn" title="批量刪除模式" onclick="toggleBatchDeleteMode()">🗑️</button>
-            <button class="icon-sm-btn" title="新增資料夾" onclick="promptCreateFolder(null)">📁＋</button>
-            <button class="icon-sm-btn" title="新增文檔" onclick="createNewDoc(null)">📄＋</button>
-            <button class="icon-sm-btn mobile-close" id="closeSidebarBtn" onclick="closeSidebarMobile()">✕</button>
+    <!-- 下方主內容區 -->
+    <main class="content-workspace">
+      <!-- 1. 文檔編輯區 -->
+      <section id="editorView" class="view-panel">
+        <div class="editor-meta-panel">
+          <div class="meta-left-col">
+            <div class="breadcrumb-row" id="docBreadcrumbBar"></div>
+            <div class="doc-title-line">
+              <button class="doc-icon-picker-btn" id="docIconBtn" title="自訂 Icon" onclick="openIconPicker('doc', activeDocId)">📄</button>
+              <input type="text" id="docTitleInput" class="doc-title-input" placeholder="文檔標題..." oninput="onTitleChange()">
+            </div>
+            <div class="doc-stats-line">
+              <span>字數：<strong class="stat-pill" id="statWordCount">0</strong></span>
+              <span>更新時間：<span id="statUpdatedAt">--</span></span>
+            </div>
+            <div class="hashtag-wrap" id="liveTagToolbar"></div>
+          </div>
+
+          <div class="meta-right-col">
+            <label class="btn btn-secondary action-pill-btn" title="插入圖片">
+              🖼️ <span class="lbl">放圖片</span>
+              <input type="file" id="imgUploadInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
+            </label>
+            <button class="btn btn-secondary action-pill-btn" onclick="addCurrentDocToCanvas()">📌 <span class="lbl">投射白板</span></button>
+            <button class="btn btn-danger action-pill-btn" onclick="deleteCurrentDocument()">🗑️ <span class="lbl">刪除</span></button>
           </div>
         </div>
 
-        <!-- 批量刪除條 -->
-        <div class="batch-bar" id="batchActionBar">
-          <span>已進入批量刪除模式</span>
-          <button class="btn btn-danger" style="padding:4px 8px; font-size:11px;" onclick="executeBatchDelete()">刪除選取項</button>
-        </div>
-
-        <!-- 搜尋欄 -->
-        <div class="search-wrap">
-          <input type="text" id="searchInput" class="search-input-box" placeholder="🔍 搜尋欄..." oninput="renderSidebarTree()">
-        </div>
-
-        <!-- 樹狀目錄清單 -->
-        <div class="directory-tree-area" id="worldTreeContainer"></div>
-
-        <!-- 底層設定鈕 -->
-        <div class="directory-footer">
-          <button class="btn btn-secondary" style="flex:1; justify-content:center;" onclick="openPaletteModal()">🎨 色盤</button>
-          <button class="btn btn-secondary" style="padding:6px 10px;" title="備份完整資料庫" onclick="exportFullDatabaseJSON()">💾 備份</button>
-        </div>
-      </aside>
-
-      <!-- 右側主工作區 -->
-      <main class="content-workspace">
-        <!-- 1. 文檔編輯區 -->
-        <section id="editorView" class="view-panel">
-          <!-- 上層資訊與動作區 (圖上的上層區塊) -->
-          <div class="editor-meta-panel">
-            <div class="meta-left-col">
-              <!-- 麵包屑 -->
-              <div class="breadcrumb-row" id="docBreadcrumbBar"></div>
-              <!-- 文檔標題 -->
-              <div class="doc-title-line">
-                <button class="doc-icon-picker-btn" id="docIconBtn" title="自訂 Icon" onclick="openIconPicker('doc', activeDocId)">📄</button>
-                <input type="text" id="docTitleInput" class="doc-title-input" placeholder="文檔標題..." oninput="onTitleChange()">
-              </div>
-              <!-- 字數 更新時間 -->
-              <div class="doc-stats-line">
-                <span>字數：<strong class="stat-pill" id="statWordCount">0</strong></span>
-                <span>更新時間：<span id="statUpdatedAt">--</span></span>
-              </div>
-              <!-- Hashtags -->
-              <div class="hashtag-wrap" id="liveTagToolbar"></div>
-            </div>
-
-            <!-- 右側三個白色按鈕 -->
-            <div class="meta-right-col">
-              <label class="btn btn-secondary action-pill-btn" title="插入圖片">
-                🖼️ <span class="lbl">放圖片</span>
-                <input type="file" id="imgUploadInput" accept="image/*" style="display:none;" onchange="handleImageUpload(event)">
-              </label>
-              <button class="btn btn-secondary action-pill-btn" onclick="addCurrentDocToCanvas()">📌 <span class="lbl">投射白板</span></button>
-              <button class="btn btn-danger action-pill-btn" onclick="deleteCurrentDocument()">🗑️ <span class="lbl">刪除</span></button>
-            </div>
+        <div class="editor-content-area">
+          <div class="toc-card" id="tocCard" style="display:none;">
+            <div class="toc-title">📑 章節快速跳轉</div>
+            <div class="toc-links" id="tocLinksContainer"></div>
           </div>
 
-          <!-- 下方內文大工作區 (圖上的大灰色底工作區) -->
-          <div class="editor-content-area">
-            <div class="toc-card" id="tocCard" style="display:none;">
-              <div class="toc-title">📑 章節快速跳轉</div>
-              <div class="toc-links" id="tocLinksContainer"></div>
-            </div>
+          <div class="doc-images-strip" id="docImagesContainer"></div>
 
-            <div class="doc-images-strip" id="docImagesContainer"></div>
-
-            <textarea id="docContentInput" class="content-textarea" placeholder="在此記錄設定、勢力、背景或法術細節...
+          <textarea id="docContentInput" class="content-textarea" placeholder="在此記錄設定、勢力、背景或法術細節...
 💡 章節標註：輸入「# 第一章 啟程」或「第1章」系統會自動在頂部生成快速跳轉按鈕。
-💡 標籤標註：輸入「#帝國軍方 #反抗勢力」系統會自動抽取並套色；點擊上方 Hashtag 名稱可直接定位到內文段落！" oninput="onContentChange()"></textarea>
-          </div>
-        </section>
+💡 標籤標註：輸入「#帝國軍方 #反抗勢力」系統會自動抽取；點擊上方 Hashtag 名稱可直接定位到內文段落！" oninput="onContentChange()"></textarea>
+        </div>
+      </section>
 
-        <!-- 2. 關係白板區 -->
-        <section id="canvasView" class="view-panel" style="display:none;">
-          <div class="canvas-bar">
-            <div style="display:flex; align-items:center; gap:8px;">
-              <span style="font-weight:700; font-size:13px;" id="canvasWorldTitle">🕸️ 關係白板</span>
-              <span style="font-size:11px; color:var(--text-secondary);">💡 點擊「🔗」可連線並填寫雙方關係！</span>
-            </div>
-            <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="renderCanvas()">🔄 重整</button>
+      <!-- 2. 白板畫布區 -->
+      <section id="canvasView" class="view-panel" style="display:none;">
+        <div class="canvas-bar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="font-weight:700; font-size:13px;" id="canvasWorldTitle">🕸️ 關係白板</span>
+            <span style="font-size:11px; color:var(--text-secondary);">💡 點擊「🔗」可連線並填寫雙方關係！</span>
           </div>
-          <svg class="canvas-svg" id="canvasSvg"></svg>
-          <div id="canvasNodesContainer"></div>
-        </section>
-      </main>
-    </div>
+          <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px;" onclick="renderCanvas()">🔄 重整</button>
+        </div>
+        <svg class="canvas-svg" id="canvasSvg"></svg>
+        <div id="canvasNodesContainer"></div>
+      </section>
+    </main>
   </div>
 
   <!-- Mobile Overlay -->
   <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebarMobile()"></div>
 
-  <!-- 各種彈跳視窗 (匯出、色盤、Icon、移動) -->
+  <!-- 各種彈出視窗 -->
   <div class="modal-overlay" id="batchExportModal">
     <div class="modal-card">
       <div class="modal-title">📤 批量匯出文檔 / 資料夾</div>
@@ -199,7 +188,7 @@
       <div class="modal-title">✨ 選擇自訂 Icon</div>
       <div class="emoji-grid" id="emojiGrid"></div>
       <div style="margin-top:10px;">
-        <label style="font-size:12px; color:var(--text-secondary);">或手動輸入任何符號：</label>
+        <label style="font-size:12px; color:var(--text-secondary);">或手動輸入符號：</label>
         <input type="text" id="customIconInput" class="form-input" maxlength="4" placeholder="例如：⚔️、🐉">
       </div>
       <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:10px;">
@@ -221,6 +210,6 @@
   </div>
 
   <div class="color-picker-popup" id="colorPickerPopover"></div>
-  <script src="app.js"></script>
+  <script src="app.js?v=2.0"></script>
 </body>
 </html>
